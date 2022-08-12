@@ -174,6 +174,12 @@ class Player(pygame.sprite.Sprite):
         self.dead = False
         self.alpha = 255
 
+        self.draw_particles = False
+        self.particles = []
+        self.death_particles = []
+        self.particle_timer = 0
+        particle_limit = 15
+
         self.pos = VEC((SIZE[0] / 2 - self.rect.width / 2, 385))
         self.vel = VEC(0, 0)
         self.acc = VEC(0, 0)
@@ -280,7 +286,6 @@ class Title(Text):
         self.rect.y = (SIZE[1] / 2) - ((self.rect.height /2) + (math.sin(dt * 5) * 6))
         self.rect.x = (SIZE[0] / 2) - (self.rect.width / 2)
 
-particles = []
 
 game_sprites = pygame.sprite.Group()
 tiles = pygame.sprite.Group()
@@ -299,18 +304,11 @@ died_text = Title()
 score = 0
 score_text = Text(70)
 
-particle_limit = 15
 doing_explosion = False
 
 overlay = pygame.Surface(SIZE, pygame.SRCALPHA).convert_alpha()
 alpha = 0
 sprite_alpha = 255
-
-player_particles = []
-particle_timer = 0
-
-drop_keytoggle = False
-
 
 def reset_context():
     """ Reset sprite position, player score, sprite opacity """
@@ -339,21 +337,24 @@ while running:
                         player.drop_keytoggle = True
 
     SCREEN.fill(DARK_GREY)
-
     player.update()
 
     if player.dead:
+        for index, particle in sorted(enumerate(player.particles), reverse=True):
+            player.particles.remove(particle)
+        
         if game_sprites.has(player):
             game_sprites.remove(player)
 
         if not doing_explosion:
             for particle in explode(player.rect.midright, particles=8):
-                particles.append(particle)
+                player.death_particles.append(particle)
                 doing_explosion = True
-            game_sprites.remove(player)
-        for particle in particles:
+        for index, particle in sorted(enumerate(player.death_particles), reverse=True):
+            particle.update()
+            particle.draw()
             if not particle.alive:
-                particles.remove(particle)
+                player.death_particles.remove(particle)
         if alpha >= 250 or sprite_alpha <= 5:
             overlay.fill((16, 16, 16))
             died_text.draw(time.time())
@@ -369,31 +370,33 @@ while running:
                 spike.alpha = sprite_alpha
             for spike in spikes:
                 spike.alpha = sprite_alpha
+
     if score_text.alpha > 0:
         score_text.update(str(score), center=True)
         score_text.draw()
 
     if alpha < 250:
-        for particle in particles:
+        for particle in player.particles:
             particle.update()
             particle.draw()
 
-        for particle in player_particles:
+        for particle in player.particles:
             particle.update()
             particle.draw()
 
 
-        if particle_timer == 3:
-            player_particles.append(Spark(player.rect.midleft))
-            particle_timer = 0
-        particle_timer += 1
+        if player.particle_timer == 3:
+            if round(player.vel.magnitude()) > 0:
+                player.particles.append(Spark(player.rect.midleft))
+            player.particle_timer = 0
+        player.particle_timer += 1
 
 
         if not spikes:
             spike = Spike()
             spikes.add(spike)
 
-        for spike in spikes:
+        for index, spike in sorted(enumerate(spikes), reverse=True):
             if not player.dead:
                 if spike.rect.x < 0 - spike.rect.width:
                     pygame.sprite.Sprite.kill(spike)
