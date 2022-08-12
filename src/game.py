@@ -168,13 +168,13 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.Surface((30, 30), pygame.SRCALPHA).convert_alpha()
         self.color = ORANGE
         self.surf.fill(self.color)
-        self.rect = self.surf.get_rect(center=(10, 420))
+        self.rect = self.surf.get_rect(center=(SIZE[0] / 2 - 30 / 2, 420))
 
         self.drop = False
         self.dead = False
         self.alpha = 255
 
-        self.pos = VEC((10, 385))
+        self.pos = VEC((SIZE[0] / 2 - self.rect.width / 2, 385))
         self.vel = VEC(0, 0)
         self.acc = VEC(0, 0)
 
