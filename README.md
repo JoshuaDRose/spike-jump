@@ -10,8 +10,8 @@ Spike jump is a game i'm currently making. I don't really know what I'm goign to
 12 August
  - `12:32am` got stuff done! created 4 pre-beta relases with many bug fixes, improved graphics and 1 alpha relaease!!!! yaay. Also the alpha relese is stable (lets gooo)
 
-13 August
- - `9:29am` fixed a few things including the death screen. Still a bit puzzled about the hanging particles though. Also need to fix the explosion particle collision math as it seems to be off by a few pixels.
+<!-- 13 August
+ - `9:29am` fixed a few things including the death screen. Still a bit puzzled about the hanging particles though. Also need to fix the explosion particle collision math as it seems to be off by a few pixels. -->
 ### Libraries 
 <ul>
     <li>Pygame</li>
