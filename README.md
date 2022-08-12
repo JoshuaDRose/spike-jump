@@ -17,3 +17,19 @@ Spike jump is a game i'm currently making. I don't really know what I'm goign to
     <li>Math</li>
     <li>Random</li>
 </ul>
+
+<hr>
+
+#### Small note about semantic versioning
+This project uses <a href="https://semver.org/">semantic versioning</a>. Executables will only be released on major and minor increments. Bug fixes will not be made for executables and therefore the latest (stable) version will be made on the incrament of a major branch. For <b><i>example</i></b>:
+
+| Version | Stability   |
+|---------|-------------|
+|  1.0.0  | Very stable |
+|  1.1.0  |    Stable   |
+|  1.1.1  |   Unstable  |
+|  1.1.2  |   Unstable  |
+|  1.2.0  |    Stable   |
+|  2.0.0  | Very stable |
+
+> _exceptions include pre-alpha releases_
