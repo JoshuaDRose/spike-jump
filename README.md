@@ -6,7 +6,7 @@
 <h2>About</h2>
 Spike jump is a game i'm currently making. I don't really know what I'm goign to do with it but currently you just jump over spikes and try not to die. That's pretty much it. so try and enjoy it if thats even possible. then hopefullly when more releases and bug fixes come it'll be a bit better. It's stil pre-beta but yea. that's pretty much it.
 
-### Devlog
+### Milestones
  - Created 4 pre-beta relases with many bug fixes, improved graphics and 1 alpha relaease!!!! yaay. Also the alpha relese is stable 🥳
 
 <!-- 13 August
