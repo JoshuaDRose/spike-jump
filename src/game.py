@@ -49,12 +49,22 @@ running = True
 
 pygame.display.set_caption(f"{__file__} Spike Jump")
 
+<<<<<<< HEAD
 # TODO: add docstrings
 
 def radians(x) -> float:
     return x * math.pi / 180
 
 
+=======
+
+def radians(x):
+    return x * math.pi / 180
+
+
+
+
+>>>>>>> b3c58d612e4318229ba9e9e827ed56629f7608e8
 class Particle(object):
     def __init__(self, position):
         x, y = position
@@ -145,7 +155,11 @@ class Text:
     def draw(self, center=True):
         SCREEN.blit(self.surf, self.rect)
 
+<<<<<<< HEAD
     def update(self, text, center=True) -> pygame.Surface:
+=======
+    def update(self, text, center=True):
+>>>>>>> b3c58d612e4318229ba9e9e827ed56629f7608e8
         drawn_text = self.font.render(text, True, self.color, DARK_GREY)
         self.surf = pygame.Surface(self.font.size(text), pygame.SRCALPHA).convert_alpha()
         self.surf.blit(drawn_text, (0, 0))
@@ -341,7 +355,11 @@ while running:
     if player.dead:
         for index, particle in sorted(enumerate(player.particles), reverse=True):
             player.particles.remove(particle)
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b3c58d612e4318229ba9e9e827ed56629f7608e8
         if game_sprites.has(player):
             game_sprites.remove(player)
 
