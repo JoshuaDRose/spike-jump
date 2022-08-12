@@ -15,6 +15,7 @@ Author: CodersLegacy.com
 Date: 2020
 """
 
+import time
 import math
 import random
 import pygame
@@ -29,28 +30,66 @@ VEC = pygame.math.Vector2
 ACC = 0.5
 FRIC = -0.12
 
-BLACK =   (0, 0, 0)
-WHITE =   (255, 255, 255)
-RED =   (255, 0, 0)
-GREEN =   (0, 255, 0)
-BLUE =    (0, 0, 255)
-YELLOW =  (0, 255, 255)
-ORANGE =  (255, 165, 0)
-PINK =    (255, 192, 203)
-PURPLE =  (106, 13, 173)
-CYAN =    (0, 255, 255)
-MAGENTA = (255, 0, 255)
-GREY =   (124, 124, 124)
+BLACK     = (0, 0, 0)
+WHITE     = (255, 255, 255)
+RED       = (255, 0, 0)
+GREEN     = (0, 255, 0)
+BLUE      = (0, 0, 255)
+YELLOW    = (0, 255, 255)
+ORANGE    = (255, 165, 0)
+PINK      = (255, 192, 203)
+PURPLE    = (106, 13, 173)
+CYAN      = (0, 255, 255)
+MAGENTA   = (255, 0, 255)
+GREY      = (124, 124, 124)
 DARK_GREY = (16, 16, 16)
+GOLDEN    = (255, 215, 0)
 
 running = True
 
 pygame.display.set_caption(f"{__file__} Spike Jump")
 
+
 def radians(x):
     return x * math.pi / 180
 
-class Particle:
+
+
+
+class Particle(object):
+    def __init__(self, position):
+        x, y = position
+        self.x = x
+        self.y = y
+
+class Spark(Particle):
+    """ Movement sparks that streak behind the player as they 'move' """
+    def __init__(self, position):
+        Particle.__init__(self, position)
+        self.vel = random.randint(0, 20) * 0.01
+        self.angle = random.randint(160, 200)
+        self.rad = 3
+        self.rect = pygame.draw.circle(SCREEN, GOLDEN, (int(round(self.x, 0)), int(round(self.y, 0))), self.rad)
+        self.alive = True
+
+    def move(self):
+        self.x += math.sin(self.angle) * self.vel
+        self.y -= math.cos(self.angle) * self.vel
+
+        self.rect.x = int(round(self.x))
+        self.rect.y = int(round(self.y))
+
+    def draw(self):
+        pygame.draw.circle(SCREEN, GOLDEN, self.rect.center, self.rad)
+
+    def update(self):
+        if self.rad <= 0:
+            self.alive = False
+        if self.alive:
+            self.move()
+            self.rad -= 0.05
+
+class Explosion:
     """ Makes and moves particles. (ikr who would have guessed?)"""
     def __init__(self, position):
         x, y = position
@@ -94,6 +133,7 @@ class Particle:
             self.collide()
             self.rad -= 0.02
 
+
 class Text:
     """ Displays text easier """
     def __init__(self, size):
@@ -103,29 +143,34 @@ class Text:
         self.color = list(PURPLE)
         self.color.append(self.alpha)
 
-    def draw(self, text, center=True):
-        drawn_text = self.font.render(text, True, self.color, DARK_GREY)
-        if center:
-            self.surf = pygame.Surface(self.font.size(text), pygame.SRCALPHA).convert_alpha()
-            self.surf.blit(drawn_text, (0, 0))
-            self.rect = self.surf.get_rect()
-            self.rect.center = (SIZE[0] / 2, SIZE[1] / 2)
-
-    def update(self):
+    def draw(self, center=True):
         SCREEN.blit(self.surf, self.rect)
+
+    def update(self, text, center=True):
+        drawn_text = self.font.render(text, True, self.color, DARK_GREY)
+        self.surf = pygame.Surface(self.font.size(text), pygame.SRCALPHA).convert_alpha()
+        self.surf.blit(drawn_text, (0, 0))
+        self.rect = self.surf.get_rect()
+        if center:
+            self.rect.center = (SIZE[0] / 2, SIZE[1] / 2)
+        return self.surf
+
 
 class Tilemap:
     """ Regulates the display of tiles """
     pass
+
 
 class Player(pygame.sprite.Sprite):
     """The player class which will be controlled."""
     def __init__(self):
         super().__init__()
         self.surf = pygame.Surface((30, 30), pygame.SRCALPHA).convert_alpha()
-        self.surf.fill(ORANGE)
+        self.color = ORANGE
+        self.surf.fill(self.color)
         self.rect = self.surf.get_rect(center=(10, 420))
 
+        self.drop = False
         self.dead = False
         self.alpha = 255
 
@@ -163,14 +208,17 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         """ Update player physics and collision detection """
-        collision = pygame.sprite.spritecollide(player, tiles, False)
-        spiked = pygame.sprite.spritecollide(player, spikes, False)
-        if player.vel.y > 0:
-            if collision:
-                self.pos.y = collision[0].rect.top + 1
-                self.vel.y = 0
-            if spiked:
-                self.dead = True
+        if not self.drop:
+            collision = pygame.sprite.spritecollide(player, tiles, False)
+            spiked = pygame.sprite.spritecollide(player, spikes, False)
+            if player.vel.y > 0:
+                if collision:
+                    self.pos.y = collision[0].rect.top + 1
+                    self.vel.y = 0
+                if spiked:
+                    self.dead = True
+        else:
+            self.alpha = 0
 
 
 class Spike(pygame.sprite.Sprite):
@@ -218,16 +266,19 @@ class Tile(pygame.sprite.Sprite):
 def explode(position, particles=3) -> list:
     group = []
     for i in range(particles):
-        group.append(Particle(position))
+        group.append(Explosion(position))
     return group
 
 
 class Title(Text):
     """ Manages title but with sine wave ^0^ """
     def __init__(self):
-        Text.__init__(self, 80)
-    pass
+        Text.__init__(self, 55)
+        self.text = self.update("You Died", center=False)
 
+    def draw(self, dt):
+        self.rect.y = (SIZE[1] / 2) - ((self.rect.height /2) + (math.sin(dt * 5) * 6))
+        self.rect.x = (SIZE[0] / 2) - (self.rect.width / 2)
 
 particles = []
 
@@ -243,6 +294,8 @@ game_sprites.add(player)
 
 tiles.add(window_floor)
 
+died_text = Title()
+
 score = 0
 score_text = Text(70)
 
@@ -253,12 +306,15 @@ overlay = pygame.Surface(SIZE, pygame.SRCALPHA).convert_alpha()
 alpha = 0
 sprite_alpha = 255
 
+player_particles = []
+particle_timer = 0
+
+drop_keytoggle = False
+
 
 def reset_context():
     """ Reset sprite position, player score, sprite opacity """
     pass
-
-
 
 while running:
     for event in pygame.event.get():
@@ -269,6 +325,18 @@ while running:
                 running = False
             if event.key == pygame.K_UP:
                 player.jump()
+            if event.key == pygame.K_q:
+                running = False
+            if event.key == pygame.K_RETURN:
+                if player.dead:
+                    print("Restarting")
+            if event.key == pygame.K_SPACE:
+                if player.dead:
+                    print("Resarting")
+                else:
+                    if not player.drop_keytoggle:
+                        player.drop = not player.drop
+                        player.drop_keytoggle = True
 
     SCREEN.fill(DARK_GREY)
 
@@ -287,50 +355,72 @@ while running:
             if not particle.alive:
                 particles.remove(particle)
         if alpha >= 250 or sprite_alpha <= 5:
-            overlay.fill(BLACK)
-
+            overlay.fill((16, 16, 16))
+            died_text.draw(time.time())
+            overlay.blit(died_text.surf, died_text.rect)
         else:
+            score_text.alpha = 0
             alpha += 2
             sprite_alpha -= 2
             overlay.fill((16, 16, 16, round(alpha)))
+            died_text.draw(time.time())
+            overlay.blit(died_text.surf, died_text.rect)
             for sprite in game_sprites:
                 spike.alpha = sprite_alpha
             for spike in spikes:
                 spike.alpha = sprite_alpha
-    score_text.draw(str(score))
-    score_text.update()
+    if score_text.alpha > 0:
+        score_text.update(str(score), center=True)
+        score_text.draw()
 
-    for particle in particles:
-        particle.update()
-        particle.draw()
+    if alpha < 250:
+        for particle in particles:
+            particle.update()
+            particle.draw()
 
-    for spike in spikes:
-        if not player.dead:
-            if spike.rect.x < 0 - spike.rect.width:
-                pygame.sprite.Sprite.kill(spike)
-            if player.rect.x in range(spike.rect.x, spike.rect.x + spike.rect.width):
-                if not spike.passed:
-                    score += 1
-                    spike.passed = True
-        spike.update()
-        spike.move()
-        SCREEN.blit(spike.surf, spike.rect)
+        for particle in player_particles:
+            particle.update()
+            particle.draw()
 
-    for sprite in game_sprites:
-        sprite.move()
-        sprite.update()
-        SCREEN.blit(sprite.surf, sprite.rect)
 
-    if spikes:
-        if (spikes.sprites()[len(spikes) - 1].rect.x + 40) > SIZE[0] - 20:
-            if (spikes.sprites()[len(spikes) - 2].rect.x + 40) - (spikes.sprites()[len(spikes) - 2].rect.x + 40) > 50:
+        if particle_timer == 3:
+            player_particles.append(Spark(player.rect.midleft))
+            particle_timer = 0
+        particle_timer += 1
+
+
+        if not spikes:
+            spike = Spike()
+            spikes.add(spike)
+
+        for spike in spikes:
+            if not player.dead:
+                if spike.rect.x < 0 - spike.rect.width:
+                    pygame.sprite.Sprite.kill(spike)
+                if player.rect.x in range(spike.rect.x, spike.rect.x + spike.rect.width):
+                    if not spike.passed:
+                        score += 1
+                        spike.passed = True
+
+            if spike.rect.x < 0:
+                spikes.remove(spike)
+                spike = Spike()
                 spikes.add(spike)
-    else:
-        spike = Spike()
-        spikes.add(spike)
+
+            spike.update()
+            spike.move()
+            SCREEN.blit(spike.surf, spike.rect)
+
+        for sprite in game_sprites:
+            sprite.move()
+            sprite.update()
+            SCREEN.blit(sprite.surf, sprite.rect)
 
     SCREEN.blit(overlay, (0, 0))
 
     pygame.display.update()
     CLOCK.tick(FPS)
+
+pygame.font.quit()
+pygame.display.quit()
 
