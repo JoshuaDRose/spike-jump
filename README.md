@@ -8,9 +8,9 @@ Spike jump is a very minimal, simple game where you have to jump over spikes and
 
 ### Milestones
  - [First release!](https://github.com/JoshuaDRose/spike-jump/releases)
- - v1.1.0 major bug fixes
- - v1.1.2 Repository made public
- - v2.0.0 with improved graphics and first alpha release 🥳
+ - `v1.1.0` major bug fixes
+ - `v1.1.2` Repository made public
+ - `v2.0.0` with improved graphics and first alpha release 🥳
 
 <!-- 13 August
  - `9:29am` fixed a few things including the death screen. Still a bit puzzled about the hanging particles though. Also need to fix the explosion particle collision math as it seems to be off by a few pixels. -->
