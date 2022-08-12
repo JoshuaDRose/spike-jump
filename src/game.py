@@ -49,22 +49,16 @@ running = True
 
 pygame.display.set_caption(f"{__file__} Spike Jump")
 
-<<<<<<< HEAD
 # TODO: add docstrings
 
 def radians(x) -> float:
     return x * math.pi / 180
 
 
-=======
-
 def radians(x):
     return x * math.pi / 180
 
 
-
-
->>>>>>> b3c58d612e4318229ba9e9e827ed56629f7608e8
 class Particle(object):
     def __init__(self, position):
         x, y = position
@@ -155,11 +149,7 @@ class Text:
     def draw(self, center=True):
         SCREEN.blit(self.surf, self.rect)
 
-<<<<<<< HEAD
     def update(self, text, center=True) -> pygame.Surface:
-=======
-    def update(self, text, center=True):
->>>>>>> b3c58d612e4318229ba9e9e827ed56629f7608e8
         drawn_text = self.font.render(text, True, self.color, DARK_GREY)
         self.surf = pygame.Surface(self.font.size(text), pygame.SRCALPHA).convert_alpha()
         self.surf.blit(drawn_text, (0, 0))
@@ -317,15 +307,37 @@ died_text = Title()
 score = 0
 score_text = Text(70)
 
-doing_explosion = False
-
 overlay = pygame.Surface(SIZE, pygame.SRCALPHA).convert_alpha()
 alpha = 0
 sprite_alpha = 255
 
 def reset_context():
     """ Reset sprite position, player score, sprite opacity """
-    pass
+    global alpha
+    global sprite_alpha
+    global overlay
+
+    global player
+    global game_sprites
+
+    global score
+
+    global spikes
+
+    alpha = 0
+    sprite_alpha = 255
+    player.pos.x = SIZE[0] / 2 + player.rect.width / 2
+    player.pos.y = SIZE[1] - 50
+    player.vel.x = 0
+    player.vel.y = 0
+    player.dead = False
+    game_sprites.add(player)
+
+    for i in spikes:
+        spikes.remove(i)
+
+    score = 0
+    return;
 
 while running:
     for event in pygame.event.get():
@@ -340,12 +352,13 @@ while running:
                 running = False
             if event.key == pygame.K_RETURN:
                 if player.dead:
-                    print("Restarting")
+                    if alpha >= 250:
+                        reset_context()
             if event.key == pygame.K_SPACE:
                 if player.dead:
-                    print("Resarting")
+                    reset_context()
                 else:
-                    if not player.drop_keytoggle:
+                    if not player.drop:
                         player.drop = not player.drop
                         player.drop_keytoggle = True
 
@@ -354,43 +367,38 @@ while running:
 
     if player.dead:
         for index, particle in sorted(enumerate(player.particles), reverse=True):
+            # TODO try and get rid of hanging particle on death
             player.particles.remove(particle)
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> b3c58d612e4318229ba9e9e827ed56629f7608e8
         if game_sprites.has(player):
             game_sprites.remove(player)
 
-        if not doing_explosion:
             for particle in explode(player.rect.midright, particles=8):
                 player.death_particles.append(particle)
-                doing_explosion = True
+
         for index, particle in sorted(enumerate(player.death_particles), reverse=True):
             particle.update()
             particle.draw()
             if not particle.alive:
                 player.death_particles.remove(particle)
-        if alpha >= 250 or sprite_alpha <= 5:
-            overlay.fill((16, 16, 16))
-            died_text.draw(time.time())
-            overlay.blit(died_text.surf, died_text.rect)
-        else:
+        if alpha < 250:
             score_text.alpha = 0
             alpha += 2
             sprite_alpha -= 2
-            overlay.fill((16, 16, 16, round(alpha)))
-            died_text.draw(time.time())
-            overlay.blit(died_text.surf, died_text.rect)
+            overlay.fill((16, 16, 16, alpha))
             for sprite in game_sprites:
                 spike.alpha = sprite_alpha
             for spike in spikes:
                 spike.alpha = sprite_alpha
 
-    if score_text.alpha > 0:
+        died_text.draw(time.time())
+        overlay.blit(died_text.surf, died_text.rect)
+    else:
+        overlay.fill((16, 16, 16, alpha))
+
+    if score_text.alpha > 5:
         score_text.update(str(score), center=True)
-        score_text.draw()
+        SCREEN.blit(score_text.surf, score_text.rect)
 
     if alpha < 250:
         for particle in player.particles:
