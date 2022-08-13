@@ -340,6 +340,7 @@ def reset_context():
     player.pos.x = SIZE[0] / 2 + player.rect.width / 2
     player.pos.y = SIZE[1] - 50
     player.vel.x = 0
+    score_text.alpha = 255
     player.vel.y = 0
     player.dead = False
     game_sprites.add(player)
