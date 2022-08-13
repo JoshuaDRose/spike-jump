@@ -13,17 +13,6 @@ Spike jump is a very minimal, simple game where you have to jump over spikes and
 
 > _A list of all milestones and releases can be found [here](https://github.com/JoshuaDRose/spike-jump/releases)_
 
-<!-- 
-13 August
- - `9:29am` fixed a few things including the death screen. Still a bit puzzled about the hanging particles though. Also need to fix the explosion particle collision math as it seems to be off by a few pixels. 
-### Libraries 
-<ul>
-    <li>Pygame</li>
-    <li>Math</li>
-    <li>Random</li>
-</ul>
--->
-
 <hr>
 
 #### Small note about semantic versioning
