@@ -1,6 +1,5 @@
 # Spike Jump
-
-![version](https://img.shields.io/github/v/release/JoshuaDRose/spike-jump?color=olive&display_name=tag)
+![stable](https://img.shields.io/badge/stable-v1.2.0-9cf)
 
 ### About
 Spike jump is a very minimal, simple game where you have to jump over spikes and as you do, for each spike you jump over, your score increases. Your goal is to get as high of a score as possible without dying! Good luck!
