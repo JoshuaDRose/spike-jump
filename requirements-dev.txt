@@ -1,2 +1,2 @@
 flake8==5.0.4
-setuptools
+pygame==2.1.1
