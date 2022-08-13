@@ -1,4 +1,4 @@
-name: pylint
+name: flake
 
 on: [push]
 
@@ -17,7 +17,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
-    - name: Analysing code with pylint
+        pip install flake8
+    - name: Analysing code with flake
       run: |
-        pylint $(git ls-files '*.py') --ignore-long-lines
+        flake8 $(git ls-files '*.py')
