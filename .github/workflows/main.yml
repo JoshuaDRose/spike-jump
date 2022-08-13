@@ -7,11 +7,13 @@ on:
   
 jobs:
   main:
-    runs-on:
-      - windows-latest:
-        python: 3.9
-        toxenv: py
-        
+    strategy:
+      matrix:
+        include:
+        - os: windows-latest
+          python: 3.6
+          toxenv: py
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
