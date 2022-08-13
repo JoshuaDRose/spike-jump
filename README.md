@@ -8,7 +8,7 @@ Spike jump is a very minimal, simple game where you have to jump over spikes and
  - `v1.0.0` The first pre alpha release ever!
  - `v1.1.0` Major bug fixes
  - `v1.1.2` Repository made public
- - `v2.0.0` First alpha release!!!, with performance improvements and improved graphics 🥳
+ - `v1.2.0` First alpha release!!!, with performance improvements and improved graphics 🥳
 
 > _A list of all milestones and releases can be found [here](https://github.com/JoshuaDRose/spike-jump/wiki/releases)_
 
