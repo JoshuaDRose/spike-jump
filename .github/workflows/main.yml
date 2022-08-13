@@ -11,7 +11,7 @@ jobs:
       matrix:
         include:
         - os: windows-latest
-          python: 3.6
+          python: 3.10
           toxenv: py
     runs-on: ${{ matrix.os }}
     steps:
