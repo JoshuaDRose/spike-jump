@@ -2,14 +2,18 @@
 Personal Description:
 https://coderslegacy.com/python/pygame-platformer-game-development/
 
-The sort of 'goal' I guess one could say with this sort of project is to try and use object oriented programming
-with out making by own sprite class in which to inherit varoius other classes with, but instead to use pygame.sprite.Sprite.
+The sort of 'goal' I guess one could say with this sort of project is to try and use 
+object-oriented programming with out making by own sprite class in which to inherit 
+varoius other classes with, but instead to use pygame.sprite.Sprite.
 
-I know several people such as fluffypotato who don't do this at all, but their reasoning is simply 'I never bothered' so I thought I would learn it
-Not to say in any way that I'm better than others for using it, in fact more the polar opposite because I prefer to use things that are already done for me.
+I know several people such as fluffypotato who don't do this at all, but their reasoning 
+is simply 'I never bothered' so I thought I would learn it. Not to say in any way that I'm
+better than others for using it, in fact more the polar opposite because I prefer to use things 
+that are already done for me.
 
-To give credit where credit is due, another reason dafluffy potato didn't want to use sprites 'and understandably so', is because he's been using pygame for a very long
-time and in 1.3 PyGame was when sprites were introduced.
+To give credit where credit is due, another reason dafluffy potato didn't want to use 
+sprites 'and understandably so', is because he's been using pygame for a very long time and in 
+1.3 PyGame was when sprites were introduced.
 
 Author: CodersLegacy.com
 Date: 2020
