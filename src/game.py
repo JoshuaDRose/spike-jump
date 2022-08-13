@@ -82,7 +82,7 @@ class Spark(Particle):
         list(self.color).append(255)
         self.surf = pygame.Surface([self.rad, self.rad], pygame.SRCALPHA).convert_alpha()
         self.rect = self.surf.get_rect(center = (self.rad/2, self.rad/2))
-        pygame.draw.circle(SCREEN, self.color, self.rect.center, self.rad)
+        pygame.draw.circle(self.surf, self.color, self.rect.center, self.rad)
 
     def move(self):
         self.x += math.sin(self.angle) * self.vel
@@ -93,6 +93,7 @@ class Spark(Particle):
 
     def draw(self):
         pygame.draw.circle(self.surf, self.color, self.rect.center, self.rad)
+        SCREEN.blit(self.surf, self.rect)
 
     def update(self):
         self.rect = self.surf.get_rect(center = (self.rad/2, self.rad/2))
