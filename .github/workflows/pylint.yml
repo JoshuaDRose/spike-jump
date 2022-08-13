@@ -20,4 +20,4 @@ jobs:
         pip install pylint
     - name: Analysing code with pylint
       run: |
-        pylint $(git ls-files 'game.py')
+        pylint $(git ls-files '*.py')
