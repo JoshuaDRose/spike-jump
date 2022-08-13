@@ -1,4 +1,4 @@
-name: pep8
+name: pylint
 
 on: [push]
 
@@ -20,4 +20,4 @@ jobs:
         pip install pylint
     - name: Analysing code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint --ignore-long-lines $(git ls-files '*.py') 
