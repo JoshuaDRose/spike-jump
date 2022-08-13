@@ -2,17 +2,17 @@
 Personal Description:
 https://coderslegacy.com/python/pygame-platformer-game-development/
 
-The sort of 'goal' I guess one could say with this sort of project is to try and use 
-object-oriented programming with out making by own sprite class in which to inherit 
+The sort of 'goal' I guess one could say with this sort of project is to try and use
+object-oriented programming with out making by own sprite class in which to inherit
 varoius other classes with, but instead to use pygame.sprite.Sprite.
 
-I know several people such as fluffypotato who don't do this at all, but their reasoning 
+I know several people such as fluffypotato who don't do this at all, but their reasoning
 is simply 'I never bothered' so I thought I would learn it. Not to say in any way that I'm
-better than others for using it, in fact more the polar opposite because I prefer to use things 
+better than others for using it, in fact more the polar opposite because I prefer to use things
 that are already done for me.
 
-To give credit where credit is due, another reason dafluffy potato didn't want to use 
-sprites 'and understandably so', is because he's been using pygame for a very long time and in 
+To give credit where credit is due, another reason dafluffy potato didn't want to use
+sprites 'and understandably so', is because he's been using pygame for a very long time and in
 1.3 PyGame was when sprites were introduced.
 
 Author: CodersLegacy.com
@@ -53,15 +53,15 @@ running = True
 
 pygame.display.set_caption(f"{__file__} Spike Jump")
 
-# TODO: add docstrings
-
 def radians(x) -> float:
+    """ Converts an integer and or float value to radians """
     return x * math.pi / 180
 
-
-def radians(x):
-    return x * math.pi / 180
-
+def convert_rgba(color, alpha) -> tuple:
+    """ Convert rgb color value to rgba """
+    if len(color) == 3:
+        return color.append(alpha)
+    raise IndexError
 
 class Particle(object):
     def __init__(self, position):
@@ -72,12 +72,17 @@ class Particle(object):
 class Spark(Particle):
     """ Movement sparks that streak behind the player as they 'move' """
     def __init__(self, position):
+        # NOTE spark color should change dynamically
         Particle.__init__(self, position)
         self.vel = random.randint(0, 20) * 0.01
         self.angle = random.randint(160, 200)
-        self.rad = 3
-        self.rect = pygame.draw.circle(SCREEN, GOLDEN, (int(round(self.x, 0)), int(round(self.y, 0))), self.rad)
         self.alive = True
+        self.rad = 3
+        self.color = GOLDEN
+        list(self.color).append(255)
+        self.surf = pygame.Surface([self.rad, self.rad], pygame.SRCALPHA).convert_alpha()
+        self.rect = self.surf.get_rect(center = (self.rad/2, self.rad/2))
+        pygame.draw.circle(SCREEN, self.color, self.rect.center, self.rad)
 
     def move(self):
         self.x += math.sin(self.angle) * self.vel
@@ -87,9 +92,10 @@ class Spark(Particle):
         self.rect.y = int(round(self.y))
 
     def draw(self):
-        pygame.draw.circle(SCREEN, GOLDEN, self.rect.center, self.rad)
+        pygame.draw.circle(self.surf, self.color, self.rect.center, self.rad)
 
     def update(self):
+        self.rect = self.surf.get_rect(center = (self.rad/2, self.rad/2))
         if self.rad <= 0:
             self.alive = False
         if self.alive:
@@ -336,6 +342,8 @@ def reset_context():
     player.vel.y = 0
     player.dead = False
     game_sprites.add(player)
+    for particle in player.particles:
+        player.particles
 
     for i in spikes:
         spikes.remove(i)
@@ -361,17 +369,18 @@ while running:
             if event.key == pygame.K_SPACE:
                 if player.dead:
                     reset_context()
+                """
                 else:
                     if not player.drop:
                         player.drop = not player.drop
                         player.drop_keytoggle = True
+                """
 
     SCREEN.fill(DARK_GREY)
     player.update()
 
     if player.dead:
         for index, particle in sorted(enumerate(player.particles), reverse=True):
-            # TODO try and get rid of hanging particle on death
             player.particles.remove(particle)
 
         if game_sprites.has(player):
