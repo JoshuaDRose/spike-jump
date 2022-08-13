@@ -1,6 +1,6 @@
 # Spike Jump
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/JoshuaDRose/spike-jump?color=e1daca&display_name=release&sort=semver)
-
+[![CodeQL](https://github.com/JoshuaDRose/spike-jump/actions/workflows/codeql-analysis.yml/badge.svg?branch=master)](https://github.com/JoshuaDRose/spike-jump/actions/workflows/codeql-analysis.yml)
 ### About
 Spike jump is a very minimal, simple game where you have to jump over spikes and as you do, for each spike you jump over, your score increases. Your goal is to get as high of a score as possible without dying! Good luck!
 
