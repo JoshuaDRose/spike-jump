@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+    tags:
+  pull_request:
+  
+jobs:
+  main:
+    strtegy:
+      matrix:
+        include:
+        - os: windows-latest
+          python: 3.9
+          toxenv: py
+  runs-on: ${{ matrix.os }}
+  steps:
+  - uses: actions/checkout@v2
+  - uses: actions/setup-python@v2
+    with:
+      python-version: ${{ matrix.python }}
+  - run: python mpip install --upgraded setuptools pip tox virtualenv
+  - run: tox -e ${{ matrix.toxenv }}
