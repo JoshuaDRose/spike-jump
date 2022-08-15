@@ -65,6 +65,7 @@ def convert_rgba(color, alpha) -> tuple:
     raise IndexError
 
 class Particle(object):
+    """ Particle system which is used as the base class | where it also can be used as an entity class """
     def __init__(self, position):
         x, y = position
         self.x = x
@@ -86,6 +87,7 @@ class Spark(Particle):
         pygame.draw.circle(self.surf, self.color, self.rect.center, self.rad)
 
     def move(self):
+        """ Move the particle according to its axis """
         self.x += math.sin(self.angle) * self.vel
         self.y -= math.cos(self.angle) * self.vel
 
@@ -93,10 +95,12 @@ class Spark(Particle):
         self.rect.y = int(round(self.y))
 
     def draw(self):
+        """ Draw the particle to a surface which then is drawn to the screen (main surface) """
         pygame.draw.circle(self.surf, self.color, self.rect.center, self.rad)
         SCREEN.blit(self.surf, self.rect)
 
     def update(self):
+        """ Uupdate the rect which allows for the detection of collision """
         self.rect = self.surf.get_rect(center = (self.rad/2, self.rad/2))
         if self.rad <= 0:
             self.alive = False
@@ -117,6 +121,7 @@ class Explosion:
         self.alive = True
 
     def move(self):
+        """ Move the particle according to its axis """
         self.x += math.sin(self.angle) * self.vel
         self.y -= math.cos(self.angle) * self.vel
 
@@ -124,9 +129,11 @@ class Explosion:
         self.rect.y = int(round(self.y))
 
     def draw(self):
+        """ Draw the particle to the screen """
         pygame.draw.circle(SCREEN, YELLOW, self.rect.center, self.rad)
 
     def collide(self):
+        """ Detect for collision between surfaces """
         if self.x > SCREEN.get_width() - self.rad:
             self.x = 2 * (SCREEN.get_width() - self.rad) - self.x
             self.angle = -self.angle
@@ -140,6 +147,7 @@ class Explosion:
             self.angle = math.pi - self.angle
 
     def update(self):
+        """ Update the particle rect and then call class methods """
         if self.rad <= 0:
             self.alive = False
 
@@ -152,6 +160,7 @@ class Explosion:
 class Text:
     """ Displays text easier """
     def __init__(self, size):
+        """ Constructor has default font enabled """
         pygame.font.init()
         self.font = pygame.font.SysFont('impact', size)
         self.alpha = 255
@@ -159,9 +168,11 @@ class Text:
         self.color.append(self.alpha)
 
     def draw(self, center=True):
+        """ Draw text to the screen """
         SCREEN.blit(self.surf, self.rect)
 
     def update(self, text, center=True) -> pygame.Surface:
+        """ Blit the surface and take in a default str text argument """
         drawn_text = self.font.render(text, True, self.color, DARK_GREY)
         self.surf = pygame.Surface(self.font.size(text), pygame.SRCALPHA).convert_alpha()
         self.surf.blit(drawn_text, (0, 0))
@@ -179,6 +190,7 @@ class Tilemap:
 class Player(pygame.sprite.Sprite):
     """The player class which will be controlled."""
     def __init__(self):
+        """ Player constructor has default player arguments: color, rect etc """ 
         super().__init__()
         self.surf = pygame.Surface((30, 30), pygame.SRCALPHA).convert_alpha()
         self.color = ORANGE
@@ -281,12 +293,14 @@ class Tile(pygame.sprite.Sprite):
         self.alpha = 255
 
     def update(self):
+        """ Update the tile by filling it with its appropriate color """
         self.surf.fill((self.color[0], self.color[1], self.color[2], self.alpha))
 
     def move(self):
         pass
 
 def explode(position, particles=3) -> list:
+    """ Fill the particle list through the instantiation of a particle class """
     group = []
     for i in range(particles):
         group.append(Explosion(position))
@@ -300,6 +314,7 @@ class Title(Text):
         self.text = self.update("You Died", center=False)
 
     def draw(self, dt):
+        """ Draw title text to the screen """
         self.rect.y = (SIZE[1] / 2) - ((self.rect.height /2) + (math.sin(dt * 5) * 6))
         self.rect.x = (SIZE[0] / 2) - (self.rect.width / 2)
 
