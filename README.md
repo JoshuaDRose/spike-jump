@@ -4,4 +4,4 @@
 ### About
 Spike jump is a very minimal, simple game where you have to jump over spikes and as you do, for each spike you jump over, your score increases. Your goal is to get as high of a score as possible without dying! Good luck!
 
-> _Please note that I am aware that I am incorrectly versioning the releases. This is done on purpose._
+> As noted in alpha release 1.3.0 semantic versioning practices will be followed.
