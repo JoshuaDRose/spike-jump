@@ -265,8 +265,8 @@ class Spike(pygame.sprite.Sprite):
         for i in glob.glob('.\sprites\spike\*'):
             image = pygame.image.load(i).convert()
             image = pygame.transform.scale2x(image)
-            image.set_colorkey(WHITE) 
-            
+            image.set_colorkey(WHITE)
+
             self.spikes.append(image)
         self.alpha = 255
         self.passed = False
@@ -297,7 +297,7 @@ class Spike(pygame.sprite.Sprite):
             else:
                 self.frame += 1
             self.fps = 0
-        
+
         collision = pygame.sprite.spritecollide(player, spikes, False)
         if collision:
             player.dead = True
