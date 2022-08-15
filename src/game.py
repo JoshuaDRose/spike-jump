@@ -260,10 +260,11 @@ class Spike(pygame.sprite.Sprite):
     """ Spikes will kill the player """
     def __init__(self):
         super().__init__()
-        self.surf = pygame.Surface((40, 25), pygame.SRCALPHA).convert_alpha()
+        self.surf = pygame.image.load('sprites/spike.png').convert()
+        self.surf.set_colorkey(WHITE)
         self.rect = self.surf.get_rect()
         self.alpha = 255
-        pygame.draw.polygon(self.surf, (124, 124, 124, self.alpha), ((self.rect.bottomleft), (self.rect.midtop), (self.rect.bottomright)))
+        # pygame.draw.polygon(self.surf, (124, 124, 124, self.alpha), ((self.rect.bottomleft), (self.rect.midtop), (self.rect.bottomright)))
         self.passed = False
         self.vel = 5
         self.pos = VEC((SIZE[0] + random.randint(50, 200), SIZE[1] - 20))
@@ -273,13 +274,15 @@ class Spike(pygame.sprite.Sprite):
        """ Constant move spike toward the player """
        self.pos -= (self.vel, 0)
        self.rect.midbottom = self.pos
+       if self.alpha < 255:
+           self.surf.fill(WHITE)
 
     def update(self):
         """ Detect if collided with anything """
         collision = pygame.sprite.spritecollide(player, spikes, False)
         if collision:
             player.dead = True
-
+        
 
 class Tile(pygame.sprite.Sprite):
     """Tile class will be for basic platform interaction with entities and particles."""
