@@ -21,6 +21,7 @@ Date: 2020
 
 import time
 import math
+import glob
 import random
 import pygame
 
@@ -260,14 +261,20 @@ class Spike(pygame.sprite.Sprite):
     """ Spikes will kill the player """
     def __init__(self):
         super().__init__()
-        self.surf = pygame.image.load('sprites/spike.png').convert()
-        self.surf.set_colorkey(WHITE)
-        self.rect = self.surf.get_rect()
+        self.spikes = []
+        for i in glob.glob('.\sprites\spike\*'):
+            image = pygame.image.load(i).convert()
+            image = pygame.transform.scale2x(image)
+            image.set_colorkey(WHITE) 
+            
+            self.spikes.append(image)
         self.alpha = 255
-        # pygame.draw.polygon(self.surf, (124, 124, 124, self.alpha), ((self.rect.bottomleft), (self.rect.midtop), (self.rect.bottomright)))
         self.passed = False
         self.vel = 5
         self.pos = VEC((SIZE[0] + random.randint(50, 200), SIZE[1] - 20))
+        self.frame = 0
+        self.fps = 0
+        self.rect = self.spikes[self.frame].get_rect()
         self.rect.midbottom = self.pos
 
     def move(self):
@@ -275,14 +282,28 @@ class Spike(pygame.sprite.Sprite):
        self.pos -= (self.vel, 0)
        self.rect.midbottom = self.pos
        if self.alpha < 255:
-           self.surf.fill(WHITE)
+           self.spikes[self.frame].fill(WHITE)
 
     def update(self):
         """ Detect if collided with anything """
+        print((self.fps, self.frame))
+        if alpha < 255:
+            self.spikes[self.frame].set_alpha(self.alpha)
+        self.rect = self.spikes[self.frame].get_rect()
+        self.fps += 1
+        if self.fps == 30:
+            if self.frame == len(self.spikes) - 1:
+                self.frame = 0
+            else:
+                self.frame += 1
+            self.fps = 0
+        
         collision = pygame.sprite.spritecollide(player, spikes, False)
         if collision:
             player.dead = True
-        
+
+    def draw(self):
+        SCREEN.blit(self.spikes[self.frame], self.rect)
 
 class Tile(pygame.sprite.Sprite):
     """Tile class will be for basic platform interaction with entities and particles."""
@@ -487,7 +508,7 @@ while running:
 
             spike.update()
             spike.move()
-            SCREEN.blit(spike.surf, spike.rect)
+            spike.draw()
 
         for sprite in game_sprites:
             sprite.move()
