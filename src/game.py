@@ -48,6 +48,7 @@ MAGENTA   = (255, 0, 255)
 GREY      = (124, 124, 124)
 DARK_GREY = (16, 16, 16)
 GOLDEN    = (255, 215, 0)
+MACAROON  = (249, 224, 117)
 
 running = True
 
@@ -204,10 +205,12 @@ class Player(pygame.sprite.Sprite):
 
         pressed_keys = pygame.key.get_pressed()
 
-        if pressed_keys[pygame.K_LEFT]:
+        if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]:
             self.acc.x = -ACC
-        if pressed_keys[pygame.K_RIGHT]:
+        if pressed_keys[pygame.K_RIGHT] or pressed_keys[pygame.K_s]:
             self.acc.x = ACC
+        if any((pressed_keys[pygame.K_UP], pressed_keys[pygame.K_SPACE], pressed_keys[pygame.K_w])):
+            self.jump()
 
         self.acc.x += self.vel.x * FRIC
         self.vel += self.acc
@@ -317,10 +320,14 @@ died_text = Title()
 
 score = 0
 score_text = Text(70)
+# play_text = Text("Play")
+# quit_text = Text("Quit")
 
 overlay = pygame.Surface(SIZE, pygame.SRCALPHA).convert_alpha()
 alpha = 0
 sprite_alpha = 255
+paused = False
+
 
 def reset_context():
     """ Reset sprite position, player score, sprite opacity """
@@ -340,6 +347,7 @@ def reset_context():
     player.pos.x = SIZE[0] / 2 + player.rect.width / 2
     player.pos.y = SIZE[1] - 50
     player.vel.x = 0
+    score_text.alpha = 255
     player.vel.y = 0
     player.dead = False
     game_sprites.add(player)
@@ -358,7 +366,11 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                running = False
+                # TODO; add a pause function
+                if player.dead:
+                    running = False
+                else:
+                    paused = not paused
             if event.key == pygame.K_UP:
                 player.jump()
             if event.key == pygame.K_q:
@@ -370,6 +382,8 @@ while running:
             if event.key == pygame.K_SPACE:
                 if player.dead:
                     reset_context()
+                else:
+                    player.jump()
                 """
                 else:
                     if not player.drop:
@@ -404,11 +418,21 @@ while running:
                 spike.alpha = sprite_alpha
             for spike in spikes:
                 spike.alpha = sprite_alpha
-
         died_text.draw(time.time())
         overlay.blit(died_text.surf, died_text.rect)
     else:
         overlay.fill((16, 16, 16, alpha))
+
+    if paused:
+        if alpha < 240:
+            alpha += 20 
+        else:  
+            alpha = 255
+    else:
+        if alpha > 15:
+            alpha -= 20
+        else:
+            alpha = 0
 
     if score_text.alpha > 5:
         score_text.update(str(score), center=True)
@@ -419,17 +443,11 @@ while running:
             particle.update()
             particle.draw()
 
-        for particle in player.particles:
-            particle.update()
-            particle.draw()
-
-
         if player.particle_timer == 3:
             if round(player.vel.magnitude()) > 0:
                 player.particles.append(Spark(player.rect.midleft))
             player.particle_timer = 0
         player.particle_timer += 1
-
 
         if not spikes:
             spike = Spike()
@@ -444,7 +462,7 @@ while running:
                         score += 1
                         spike.passed = True
 
-            if spike.rect.x < 0:
+            if spike.rect.x+spike.rect.width < 0:
                 spikes.remove(spike)
                 spike = Spike()
                 spikes.add(spike)
