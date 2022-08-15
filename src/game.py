@@ -72,10 +72,89 @@ class Particle(object):
         self.x = x
         self.y = y
 
+
+class Flare(Particle):
+    """ To be used when player dies """
+    def __init__(self, location, angle, velocity, color, scale=1):
+        self.location = location
+        self.angle = angle
+        self.velocity = velocity
+        self.color = color
+        self.scale = scale
+        self.alive = True
+        self.r = False
+        self.g = False
+        self.b = False
+        self.color_velocity = 10
+
+    def point_towards(self, angle, rate):
+        rotation_direction = ((angle - self.angle + math.pi * 3) % (math.pi * 2)) - math.pi
+        try:
+            rotate_sign = abs(rotation_direction) / rotation_direction
+        except ZeroDivisionError:
+            rotate_sign = 1
+
+        if abs(rotation_direction) < rate:
+            self.angle = angle
+        else:
+            self.angle += rate * rotate_sign
+
+    def calculate_movement(self, dt):
+        return [math.cos(self.angle) * self.velocity * dt, math.sin(self.angle) * self.velocity * dt]
+
+
+    def adjust_velocity(self, friction, force, terminal, dt):
+        movement = self.calculate_movement(dt)
+        movement[1] = min(terminal_velocity, movement[1] + force * dt)
+        movement[1] *= friction
+        self.angle = math.atan2(movement[1], movement[0])
+
+    def update(self, dt):
+        movement = self.calculate_movement(dt)
+        self.location[0] += movement[0]
+        self.location[1] += movement[1]
+        self.velocity -= .1
+        if self.color != [255, 255, 255]:
+            if self.r and self.g and self.b:
+                if self.color[0] > 90:
+                    self.color[0] -= 1
+                if self.color[1] < 180:
+                    self.color[1] += self.color_velocity
+                if self.color[2] < 200:
+                    self.color[2] += self.color_velocity
+            else:
+                if self.color[0] > 245:
+                    self.color[0] -= self.color_velocity
+                if self.color[1] > 50:
+                    self.color[1] -= self.color_velocity
+                if self.color[2] < 40:
+                    self.color[2] += self.color_velocity
+                if self.color[0] == 240:
+                    self.r = True
+                if self.color[1] == 50:
+                    self.g = True
+                if self.color[2] == 40:
+                    self.b = True
+        else:
+            pass
+
+        if self.velocity <= 0:
+            self.alive = False
+
+    def draw(self, surface, offset=[0, 0]):
+        if self.alive:
+            points = [
+                    [self.location[0] + math.cos(self.angle) * self.velocity * self.scale, self.location[1] + math.sin(self.angle) * self.velocity * self.scale],
+                    [self.location[0] + math.cos(self.angle + math.pi / 2) * self.velocity * self.scale * 0.3, self.location[1] + math.sin(self.angle + math.pi / 2) * self.velocity * self.scale * 0.3],
+                    [self.location[0] + math.cos(self.angle) * self.velocity * self.scale * 3.5, self.location[1] - math.sin(self.angle) * self.velocity * self.scale * 3.5],
+                    [self.location[0] + math.cos(self.angle - math.pi / 2) * self.velocity * self.scale * 0.3, self.location[1] - math.sin(self.angle + math.pi / 2) * self.velocity * self.scale * 0.3]
+                    ]
+            pygame.draw.polygon(surface, self.color, points)
+    pass
+
 class Spark(Particle):
     """ Movement sparks that streak behind the player as they 'move' """
     def __init__(self, position):
-        # NOTE spark color should change dynamically
         Particle.__init__(self, position)
         self.vel = random.randint(0, 20) * 0.01
         self.angle = random.randint(160, 200)
@@ -101,7 +180,7 @@ class Spark(Particle):
         SCREEN.blit(self.surf, self.rect)
 
     def update(self):
-        """ Uupdate the rect which allows for the detection of collision """
+        """ Update the rect which allows for the detection of collision """
         self.rect = self.surf.get_rect(center = (self.rad/2, self.rad/2))
         if self.rad <= 0:
             self.alive = False
@@ -116,7 +195,7 @@ class Explosion:
         self.x = x
         self.y = y
         self.vel = random.randint(0, 20) * 0.1
-        self.angle = random.randint(0, 360)
+        self.angle = random.randint(80,90)
         self.rad = 3
         self.rect = pygame.draw.circle(SCREEN, YELLOW, (int(round(x, 0)), int(round(y, 0))), self.rad)
         self.alive = True
@@ -201,9 +280,10 @@ class Player(pygame.sprite.Sprite):
         self.drop = False
         self.dead = False
         self.alpha = 255
-
+        self.wall_death = False
         self.draw_particles = False
         self.particles = []
+        self.flare_iters = 0
         self.death_particles = []
         self.particle_timer = 0
         particle_limit = 15
@@ -229,11 +309,9 @@ class Player(pygame.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        if self.pos.x > SIZE[0]:
-            self.pos.x = 0
-        elif self.pos.x < 0:
-            self.pos.x = SIZE[0]
-
+        if self.pos.x > SIZE[0] or self.pos.x < 0:
+            self.wall_death = True
+            self.dead = True
         self.rect.midbottom = self.pos
 
     def jump(self):
@@ -368,6 +446,18 @@ sprite_alpha = 255
 paused = False
 
 
+flare_particles = []
+
+def wall_flare(position):
+    """ When player dies as a result of crashing into the wall """
+    global flare_particles
+    global player
+
+    for i in range(5):
+        print(position)
+        flare_particles.append(Flare(position, math.radians(random.randint(0, 360)), random.randint(3, 6), [250, 110, 0], random.randint(1, 2)))
+    player.flare_iters += 1
+
 def reset_context():
     """ Reset sprite position, player score, sprite opacity """
     global alpha
@@ -434,29 +524,37 @@ while running:
     player.update()
 
     if player.dead:
-        for index, particle in sorted(enumerate(player.particles), reverse=True):
-            player.particles.remove(particle)
+        if player.wall_death:
+            wall_flare([player.pos.x, player.pos.y])
+            for index, spark in sorted(enumerate(flare_particles), reverse=True):
+                spark.update(1)
+                spark.draw(SCREEN)
+                if not spark.alive:
+                    flare_particles.pop(index)
+        else:
+            for index, particle in sorted(enumerate(player.particles), reverse=True):
+                player.particles.remove(particle)
 
-        if game_sprites.has(player):
-            game_sprites.remove(player)
+            if game_sprites.has(player):
+                game_sprites.remove(player)
 
-            for particle in explode(player.rect.midright, particles=8):
-                player.death_particles.append(particle)
+                for particle in explode(player.rect.midright, particles=8):
+                    player.death_particles.append(particle)
 
-        for index, particle in sorted(enumerate(player.death_particles), reverse=True):
-            particle.update()
-            particle.draw()
-            if not particle.alive:
-                player.death_particles.remove(particle)
-        if alpha < 250:
-            score_text.alpha = 0
-            alpha += 2
-            sprite_alpha -= 2
-            overlay.fill((16, 16, 16, alpha))
-            for sprite in game_sprites:
-                spike.alpha = sprite_alpha
-            for spike in spikes:
-                spike.alpha = sprite_alpha
+            for index, particle in sorted(enumerate(player.death_particles), reverse=True):
+                particle.update()
+                particle.draw()
+                if not particle.alive:
+                    player.death_particles.remove(particle)
+            if alpha < 250:
+                score_text.alpha = 0
+                alpha += 2
+                sprite_alpha -= 2
+                overlay.fill((16, 16, 16, alpha))
+                for sprite in game_sprites:
+                    spike.alpha = sprite_alpha
+                for spike in spikes:
+                    spike.alpha = sprite_alpha
         died_text.draw(time.time())
         overlay.blit(died_text.surf, died_text.rect)
     else:
