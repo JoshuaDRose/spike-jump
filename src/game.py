@@ -190,7 +190,7 @@ class Tilemap:
 class Player(pygame.sprite.Sprite):
     """The player class which will be controlled."""
     def __init__(self):
-        """ Player constructor has default player arguments: color, rect etc """ 
+        """ Player constructor has default player arguments: color, rect etc """
         super().__init__()
         self.surf = pygame.Surface((30, 30), pygame.SRCALPHA).convert_alpha()
         self.color = ORANGE
@@ -440,8 +440,8 @@ while running:
 
     if paused:
         if alpha < 240:
-            alpha += 20 
-        else:  
+            alpha += 20
+        else:
             alpha = 255
     else:
         if alpha > 15:
